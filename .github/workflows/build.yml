@@ -1,16 +1,47 @@
+
 name: Build IPA
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-26
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
 
-      - name: Descomprimir zip
+      - name: Descomprimir proyecto
         run: |
-          unzip -o 3106-cerrar-sesion.zip -d proyecto
-          ls -R proyecto | head -n 100
+          unzip -o 3106-key-123.zip -d proyecto
 
-      - name: Buscar proyecto Xcode
+      - name: Compilar aplicación
         run: |
-          find proyecto -name "*.xcodeproj" -o -name "*.xcworkspace"
+          cd proyecto/3106-main
+          xcodebuild \
+            -project ThreeOneOSSix.xcodeproj \
+            -scheme 3106 \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Crear IPA
+        run: |
+          cd proyecto/3106-main
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/3106.app Payload/
+          zip -r 3106.ipa Payload
+
+      - name: Descargar IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3106-IPA
+          path: proyecto/3106-main/3106.ipa
