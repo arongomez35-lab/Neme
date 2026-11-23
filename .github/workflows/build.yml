@@ -1,4 +1,3 @@
-
 name: Build IPA
 
 on:
@@ -17,7 +16,7 @@ jobs:
 
       - name: Descomprimir proyecto
         run: |
-          unzip -o 3106-key-123.zip -d proyecto
+          unzip -o 3106-cerrar-sesion.zip -d proyecto
 
       - name: Compilar aplicación
         run: |
